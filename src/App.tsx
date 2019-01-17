@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import {
   Anchor,
   Box,
@@ -17,6 +17,10 @@ import {
 } from "grommet";
 // @ts-ignore
 import { FormClose, Notification, Close, Add, More } from "grommet-icons";
+
+import Header from "./components/header";
+import Main from "./components/main";
+import NewNote from "./components/new-note";
 
 const AppBar = (props: any) => (
   <Box
@@ -50,19 +54,27 @@ const theme = {
     extend: {
       padding: "10px"
     }
+  },
+  button: {
+    padding: {
+      vertical: "22px"
+    },
+    extend: {
+      fontWeight: "900"
+    }
   }
 };
 
-class App extends Component {
+class App extends React.Component {
   state = {
     showSidebar: false
   };
 
-  onOpen = () => this.setState({ showSidebar: true });
+  open = () => this.setState({ showSidebar: true });
 
-  onClose = () => {
-    this.setState({ showSidebar: false });
-  };
+  close = () => this.setState({ showSidebar: false });
+
+  toggle = () => this.setState({ showSidebar: !this.state.showSidebar });
 
   render() {
     const { showSidebar } = this.state;
@@ -71,19 +83,11 @@ class App extends Component {
         <ResponsiveContext.Consumer>
           {size => (
             <Box fill>
-              <AppBar>
-                <Heading level="3" margin="none">
-                  🕒 <Text style={{ fontStyle: "italic" }}>Todos</Text>
-                </Heading>
-                <Button
-                  icon={<Add />}
-                  onClick={() =>
-                    this.setState({ showSidebar: !this.state.showSidebar })
-                  }
-                />
-              </AppBar>
+              <Header toggle={this.toggle} />
               <Box direction="row" flex overflow={{ horizontal: "hidden" }}>
-                <Box flex align="center" justify="center">
+                <Main size={size} />
+
+                {/* <Box flex align="center" justify="center">
                   <Box
                     flex
                     direction="row-responsive"
@@ -127,13 +131,10 @@ class App extends Component {
                           justify="center"
                           style={{ overflow: "hidden" }}
                         >
-                          <Text alignSelf="start">
-                            This is a long cube text todo list item that should
-                            truncate eventually at the end some more text ehre
-                          </Text>
-                          {/* {size !== "small" ? (
-                              <Text alignSelf="end">Cubes</Text>
-                            ) : null} */}
+                          <Text alignSelf="start">Take car for a service</Text>
+                          {size !== "small" ? (
+                            <Text alignSelf="end">Cubes</Text>
+                          ) : null}
                         </Box>
                         <Box gridArea="right" align="end" justify="center">
                           <Menu
@@ -150,76 +151,9 @@ class App extends Component {
                       </Grid>
                     </Box>
                   </Box>
-                </Box>
+                </Box> */}
 
-                {!showSidebar || size !== "small" ? (
-                  <Collapsible direction="horizontal" open={showSidebar}>
-                    <Box
-                      flex
-                      width="medium"
-                      background="light-2"
-                      elevation="small"
-                      align="center"
-                      justify="center"
-                    >
-                      sidebar
-                    </Box>
-                  </Collapsible>
-                ) : (
-                  <Layer
-                    position="right"
-                    full="vertical"
-                    onClickOutside={this.onClose}
-                    onEsc={this.onClose}
-                  >
-                    <Box
-                      as="form"
-                      fill="vertical"
-                      overflow="auto"
-                      onSubmit={this.onClose}
-                      background="light-2"
-                      tag="header"
-                      pad="large"
-                    >
-                      <Box flex={false} direction="row" justify="between">
-                        <Heading level="2" margin="none">
-                          Add a New Note
-                        </Heading>
-                        <Button icon={<Close />} onClick={this.onClose} />
-                      </Box>
-
-                      <Box
-                        flex="grow"
-                        overflow="auto"
-                        pad={{ vertical: "medium" }}
-                      >
-                        <FormField label="Name">
-                          <TextInput
-                            style={{
-                              fontSize: "20px",
-                              fontWeight: "normal"
-                            }}
-                          />
-                        </FormField>
-                        <FormField label="Note">
-                          <TextArea
-                            plain={false}
-                            resize={false}
-                            style={{ fontSize: "20px", fontWeight: "normal" }}
-                          />
-                        </FormField>
-                      </Box>
-                      <Box flex={false} as="footer" align="start">
-                        <Button
-                          type="submit"
-                          label="Submit"
-                          onClick={this.onClose}
-                          primary
-                        />
-                      </Box>
-                    </Box>
-                  </Layer>
-                )}
+                <NewNote show={showSidebar} size={size} toggle={this.toggle} />
               </Box>
             </Box>
           )}
