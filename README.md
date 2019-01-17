@@ -1,5 +1,5 @@
-# Todos
-📌 Simple todos app to get things done.
+# 🕒 Todos
+Simple todos app to get things done.
 
 # How to run
 ~~~~ 
