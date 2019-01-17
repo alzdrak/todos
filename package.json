@@ -1,0 +1,53 @@
+{
+  "name": "todos",
+  "version": "0.0.1",
+  "description": "Simple todo's app",
+  "private": true,
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alzdrak/todos.git"
+  },
+  "keywords": [
+    "todos",
+    "react",
+    "redux",
+    "get-things-done"
+  ],
+  "author": "Nick De Beer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alzdrak/todos/issues"
+  },
+  "homepage": "https://github.com/alzdrak/todos#readme",
+  "dependencies": {
+    "grommet": "^2.3.1",
+    "grommet-icons": "^4.1.0",
+    "grommet-styles": "^0.2.0",
+    "react": "^16.7.0",
+    "react-dom": "^16.7.0",
+    "react-scripts": "2.1.3",
+    "styled-components": "^4.1.3"
+  },
+  "devDependencies": {
+    "@types/jest": "23.3.12",
+    "@types/node": "10.12.18",
+    "@types/react": "16.7.20",
+    "@types/react-dom": "16.0.11",
+    "typescript": "3.2.2"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}
