@@ -47,7 +47,7 @@ const Main = (props: { size: string }) => {
               style={{ overflow: "hidden" }}
             >
               <Text alignSelf="start">Take car for a service</Text>
-              {size !== "small" ? <Text alignSelf="end">Cubes</Text> : null}
+              {/* {size !== "small" ? <Text alignSelf="end">Cubes</Text> : null} */}
             </Box>
             <Box gridArea="right" align="end" justify="center">
               <Menu

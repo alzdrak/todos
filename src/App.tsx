@@ -1,41 +1,11 @@
 import React from "react";
-import {
-  Anchor,
-  Box,
-  Button,
-  Collapsible,
-  Heading,
-  Menu,
-  Grid,
-  Text,
-  FormField,
-  TextInput,
-  TextArea,
-  Grommet,
-  Layer,
-  ResponsiveContext
-} from "grommet";
+import { Box, Grommet, ResponsiveContext } from "grommet";
 // @ts-ignore
 import { FormClose, Notification, Close, Add, More } from "grommet-icons";
 
 import Header from "./components/header";
 import Main from "./components/main";
 import NewNote from "./components/new-note";
-
-const AppBar = (props: any) => (
-  <Box
-    tag="header"
-    direction="row"
-    align="center"
-    justify="between"
-    background="header"
-    color="header-text"
-    pad={{ left: "medium", right: "small", vertical: "medium" }}
-    elevation="small"
-    style={{ zIndex: "1" }}
-    {...props}
-  />
-);
 
 const theme = {
   global: {
@@ -65,6 +35,24 @@ const theme = {
   }
 };
 
+// // Separate props from state and props from dispatch to their own interfaces.
+// interface PropsFromState {
+//   theme: ThemeColors
+// }
+
+// interface PropsFromDispatch {
+//   [key: string]: any
+// }
+
+// // Any additional component props go here.
+// interface OwnProps {
+//   store: Store<ApplicationState>
+//   history: History
+// }
+
+// // Create an intersection type of the component props and our Redux props.
+// type AllProps = PropsFromState & PropsFromDispatch & OwnProps
+
 class App extends React.Component {
   state = {
     showSidebar: false
@@ -74,7 +62,11 @@ class App extends React.Component {
 
   close = () => this.setState({ showSidebar: false });
 
-  toggle = () => this.setState({ showSidebar: !this.state.showSidebar });
+  toggle = () => {
+    this.setState({ showSidebar: !this.state.showSidebar }, () => {
+      //console.log("toggle state", this.state);
+    });
+  };
 
   render() {
     const { showSidebar } = this.state;
