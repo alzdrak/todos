@@ -2,8 +2,8 @@ import { Action } from "redux";
 
 //todo model
 export interface Todo {
-  id: number;
-  text: number;
+  id: string;
+  text: string;
 }
 
 //action keys
@@ -15,7 +15,8 @@ export enum TodoActionTypes {
 // Declare state types with `readonly` modifier to get compile time immutability.
 // https://github.com/piotrwitek/react-redux-typescript-guide#state-with-type-level-immutability
 export interface TodoState {
-  readonly todos: ReadonlyArray<Todo>;
+  //readonly todos: ReadonlyArray<Todo>;
+  readonly todos: Todo[];
   readonly errors?: string;
   //readonly loading: boolean;
 }

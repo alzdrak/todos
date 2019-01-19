@@ -1,9 +1,14 @@
 import { Reducer, Action } from "redux";
 import { TodoState, TodoActionTypes, Todo, TodoAction } from "./types";
+import uuid from "uuid/v4";
 
 // Type-safe initialState!
 const initialState: TodoState = {
-  todos: [], //empty todos
+  todos: [
+    { id: uuid(), text: "🚘 Take car for a service" } as Todo,
+    { id: uuid(), text: "Find more henchmen 🐱‍👤" } as Todo,
+    { id: uuid(), text: "Take over the world 🌍" } as Todo
+  ], //init with 3 todos
   errors: undefined
   //loading: false
 };
@@ -15,18 +20,13 @@ const todoReducer: Reducer<TodoState> = (
   switch (action.type) {
     case TodoActionTypes.ADD_TODO:
       const newState = {
-        todos: [
-          ...state.todos,
-          { id: Date.now() + Math.random(), text: action.text }
-        ],
+        todos: [...state.todos, { id: uuid(), text: action.text }],
         errors: undefined
       };
-      console.log("reducer add_todo", newState);
       return newState;
     case TodoActionTypes.REMOVE_TODO:
       return {
-        //todos: [...state.todos, { id: Math.random(), text: action.text }],
-        todos: [...state.todos],
+        todos: state.todos.filter(todo => todo.id !== action.id),
         errors: undefined
       };
     default:
@@ -34,6 +34,4 @@ const todoReducer: Reducer<TodoState> = (
   }
 };
 
-// Instead of using default export, we use named exports. That way we can group these exports
-// inside the `index.js` folder.
 export default todoReducer;

@@ -68,9 +68,6 @@ class NewNote extends React.Component<AllProps, IState> {
 
     //toggle the add note slider
     this.props.toggle(e);
-
-    //console.log("add todo - state", this.state);
-    console.log("this", this);
   };
 
   render() {
@@ -105,7 +102,7 @@ class NewNote extends React.Component<AllProps, IState> {
                 </Box>
 
                 <Box flex="grow" overflow="auto" pad={{ vertical: "medium" }}>
-                  <FormField label="Note">
+                  <FormField label="Todo">
                     <TextArea
                       plain={false}
                       resize={false}

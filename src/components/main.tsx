@@ -1,71 +1,116 @@
-import React, { Component } from "react";
-import { Box, Grid, Text, Button, Menu } from "grommet";
-// @ts-ignore
-import { Close, More } from "grommet-icons";
+import React from "react";
+import { Dispatch } from "redux";
+import { connect } from "react-redux";
+import { Box, Grid } from "grommet";
 
-const Main = (props: { size: string }) => {
-  const { size } = props;
-  return (
-    <Box flex align="center" justify="center">
-      <Box
-        flex
-        direction="row-responsive"
-        justify="center"
-        align="center"
-        pad="medium"
-        gap="medium"
-        responsive={true}
-      >
-        <Box
-          pad="medium"
-          width="large"
-          height="xsmall"
-          align="center"
-          background={{ color: "light-2", opacity: "strong" }}
-          round
-          gap="small"
-          responsive={true}
-        >
-          <Grid
-            fill
-            areas={[
-              { name: "left", start: [0, 0], end: [0, 0] },
-              { name: "main", start: [1, 0], end: [1, 0] },
-              { name: "right", start: [2, 0], end: [2, 0] }
-            ]}
-            columns={["50px", "flex", "50px"]}
-            rows={["flex"]}
-            gap="small"
-          >
-            <Box gridArea="left" align="center" justify="center">
-              <Button icon={<Close />} hoverIndicator onClick={() => {}} />
-            </Box>
-            <Box
-              gridArea="main"
-              align="start"
-              justify="center"
-              style={{ overflow: "hidden" }}
-            >
-              <Text alignSelf="start">Take car for a service</Text>
-              {/* {size !== "small" ? <Text alignSelf="end">Cubes</Text> : null} */}
-            </Box>
-            <Box gridArea="right" align="end" justify="center">
-              <Menu
-                icon={<More />}
-                dropAlign={{ right: "right", top: "bottom" }}
-                items={[
-                  { label: "Edit", href: "#" },
-                  { label: "Complete", href: "#" },
-                  { label: "Delete", href: "#" }
-                ]}
-                size="xlarge"
+import { Todo } from "../store/todo/types";
+import { removeTodo } from "../store/todo/actions";
+import { ApplicationState } from "../store/reducers";
+import Note from "./note";
+
+//Essentially props from TodoState (copied to new interface)
+interface PropsFromState {
+  todos: ReadonlyArray<Todo>;
+  errors?: string;
+}
+
+interface PropsFromDispatch {
+  removeTodo: typeof removeTodo;
+}
+
+interface OwnProps {
+  size: string;
+  //toggle: React.FormEventHandler;
+}
+
+// Combine both state + dispatch props - as well as any props we want to pass - in a union type.
+type AllProps = PropsFromState & PropsFromDispatch & OwnProps;
+
+class Main extends React.Component<AllProps> {
+  constructor(props: any) {
+    super(props);
+
+    this.state = {
+      text: ""
+    };
+  }
+
+  private removeTodo = (id: string) => {
+    //dispatch the action
+    this.props.removeTodo(id);
+  };
+
+  renderTodos(size: string) {
+    const { todos } = this.props;
+    return (
+      <>
+        {todos.map(todo => {
+          return (
+            <React.Fragment key={todo.id}>
+              {todos.length > 0 ? (
+                <div
+                  style={{
+                    WebkitFlex: "0 0 auto",
+                    MsFlex: "0 0 auto",
+                    flex: "0 0 auto",
+                    height: "24px"
+                  }}
+                />
+              ) : null}
+
+              <Note
+                id={todo.id}
+                text={todo.text}
+                size={size}
+                remove={this.removeTodo}
               />
-            </Box>
-          </Grid>
-        </Box>
-      </Box>
-    </Box>
-  );
-};
+              {/* remove={this.removeTodo} */}
+              {/* <div key={todo.id}>{todo.text}</div> */}
+            </React.Fragment>
+          );
+        })}
+      </>
+    );
+  }
 
-export default Main;
+  render() {
+    const { size } = this.props;
+    return (
+      <Box flex align="center" justify="center">
+        {size !== "small" ? (
+          <Box justify="center" align="center" pad="medium">
+            {this.renderTodos(size)}
+          </Box>
+        ) : (
+          <Box
+            direction="row-responsive"
+            justify="center"
+            align="center"
+            pad="medium"
+          >
+            {this.renderTodos(size)}
+          </Box>
+        )}
+      </Box>
+    );
+  }
+}
+
+// constraining the actions to the connected component.
+// accessible via `this.props`.
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  removeTodo: (id: string) => dispatch(removeTodo(id))
+});
+
+// single context at a time in a connected component.
+// Can always include multiple contexts. Just remember
+// to separate them from each other to prevent prop conflicts.
+const mapStateToProps = ({ todo }: ApplicationState) => ({
+  todos: todo.todos,
+  errors: todo.errors
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Main);
