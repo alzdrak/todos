@@ -42,9 +42,10 @@ class Main extends React.Component<AllProps> {
 
   renderTodos(size: string) {
     const { todos } = this.props;
+    let animateDelayStep = 0.2;
     return (
       <>
-        {todos.map(todo => {
+        {todos.map((todo, index) => {
           return (
             <React.Fragment key={todo.id}>
               {todos.length > 0 ? (
@@ -63,6 +64,7 @@ class Main extends React.Component<AllProps> {
                 text={todo.text}
                 size={size}
                 remove={this.removeTodo}
+                animateDelay={index * animateDelayStep}
               />
               {/* remove={this.removeTodo} */}
               {/* <div key={todo.id}>{todo.text}</div> */}
