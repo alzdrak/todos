@@ -80,7 +80,7 @@ class Menu extends React.Component<AllProps, IState> {
     e.preventDefault();
 
     //dispatch the action
-    this.props.editTodo(this.state.note);
+    this.props.editTodo(this.props.todoIdForEdit, this.state.note);
 
     //toggle the add note slider
     this.props.toggleMenu(false, "");
