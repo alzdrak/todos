@@ -1,6 +1,6 @@
 # Todos
 
-🕒 Simple todos app to get things done.
+Simple todos app to get things done.
 
 ![Todos gif](todos.gif)
 
