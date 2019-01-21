@@ -1,31 +1,68 @@
 import React from "react";
+import { Dispatch } from "redux";
+import { connect } from "react-redux";
 import { Box, Text, Button, Menu, Grid } from "grommet";
 // @ts-ignore
 import { Close, More } from "grommet-icons";
-import "./note.css";
+import { toggleMenu, openMenu } from "../store/menu/actions";
+import { removeTodo } from "../store/todo/actions";
+import { ApplicationState } from "../store/reducers";
 
 interface NoteProps {
   id: string;
   text: string;
   size: string;
-  animateDelay: number;
-  remove(id: string): void;
 }
 
-class Note extends React.Component<NoteProps> {
+interface StateFromProps {
+  opened: boolean;
+  editable: boolean;
+  todoIdForEdit: string;
+}
+
+interface PropsFromDispatch {
+  removeTodo: typeof removeTodo;
+  openMenu: typeof openMenu;
+  toggleMenu: typeof toggleMenu;
+}
+
+// Combine both state + dispatch props - as well as any props we want to pass - in a union type.
+type AllProps = StateFromProps & PropsFromDispatch & NoteProps;
+
+class Note extends React.Component<AllProps> {
   private remove = () => {
-    //call function in main
-    this.props.remove(this.props.id);
+    //if the menu is opened (and editable)
+    if (this.props.opened && this.props.editable) {
+      //if the current note thats getting deleted matches store
+      if (this.props.todoIdForEdit === this.props.id) {
+        //close menu
+        this.props.toggleMenu(this.props.editable, this.props.todoIdForEdit);
+      }
+    }
+    //dispatch action to remove todo item
+    this.props.removeTodo(this.props.id);
   };
 
-  //  -webkit-animation-duration: 1s;
-  //   animation-duration: 1s;
-  //   -webkit-animation-fill-mode: both;
-  //   animation-fill-mode: both;
-
-  //   -webkit-animation-delay: 0.4s;
-  // -moz-animation-delay: 0.4s;
-  // animation-delay: 0.4s;
+  private select = () => {
+    //dispatch toggle menu action
+    if (this.props.opened) {
+      if (!this.props.editable) {
+        this.props.toggleMenu(this.props.editable); //close as not editable
+        setTimeout(() => this.props.openMenu(true, this.props.id), 400);
+      } else {
+        //already have a item open - same one then just close
+        if (this.props.todoIdForEdit === this.props.id) {
+          this.props.toggleMenu(this.props.editable, this.props.id); //toggle editable menu
+        } else {
+          //else close current one then open new todo item
+          this.props.toggleMenu(this.props.editable); //close current note
+          setTimeout(() => this.props.openMenu(true, this.props.id), 400);
+        }
+      }
+    } else {
+      this.props.openMenu(true, this.props.id); //open menu editable
+    }
+  };
 
   render() {
     return (
@@ -39,13 +76,6 @@ class Note extends React.Component<NoteProps> {
         gap="small"
         responsive={true}
         className="animate fadeInUp"
-        style={
-          {
-            //WebkitAnimationDelay: this.props.animateDelay + "s",
-            //MozAnimationDelay: this.props.animateDelay + "s",
-            //animationDelay: this.props.animateDelay + "s",
-          }
-        }
       >
         <Grid
           fill
@@ -67,7 +97,13 @@ class Note extends React.Component<NoteProps> {
             justify="center"
             style={{ overflow: "hidden" }}
           >
-            <Text alignSelf="start">{this.props.text}</Text>
+            <Text
+              alignSelf="start"
+              onClick={this.select}
+              style={{ cursor: "pointer" }}
+            >
+              {this.props.text}
+            </Text>
             {/* {size !== "small" ? <Text alignSelf="end">Cubes</Text> : null} */}
           </Box>
           <Box gridArea="right" align="end" justify="center">
@@ -75,9 +111,9 @@ class Note extends React.Component<NoteProps> {
               icon={<More />}
               dropAlign={{ right: "right", top: "bottom" }}
               items={[
-                { label: "Edit", href: "#" },
-                { label: "Complete", href: "#" },
-                { label: "Delete", href: "#" }
+                { label: "Edit", onClick: this.select },
+                // { label: "Complete", href: "#" },
+                { label: "Delete", onClick: this.remove }
               ]}
               size="xlarge"
             />
@@ -88,54 +124,22 @@ class Note extends React.Component<NoteProps> {
   }
 }
 
-// const Note = (props: NoteProps) => {
-//   <Box
-//     pad="medium"
-//     width="large"
-//     height="xsmall"
-//     align="center"
-//     background={{ color: "light-2", opacity: "strong" }}
-//     round
-//     gap="small"
-//     responsive={true}
-//   >
-//     <Grid
-//       fill
-//       areas={[
-//         { name: "left", start: [0, 0], end: [0, 0] },
-//         { name: "main", start: [1, 0], end: [1, 0] },
-//         { name: "right", start: [2, 0], end: [2, 0] }
-//       ]}
-//       columns={["50px", "flex", "50px"]}
-//       rows={["flex"]}
-//       gap="small"
-//     >
-//       <Box gridArea="left" align="center" justify="center">
-//         <Button icon={<Close />} hoverIndicator onClick={() => {}} />
-//       </Box>
-//       <Box
-//         gridArea="main"
-//         align="start"
-//         justify="center"
-//         style={{ overflow: "hidden" }}
-//       >
-//         <Text alignSelf="start">{props.text}</Text>
-//         {/* {size !== "small" ? <Text alignSelf="end">Cubes</Text> : null} */}
-//       </Box>
-//       <Box gridArea="right" align="end" justify="center">
-//         <Menu
-//           icon={<More />}
-//           dropAlign={{ right: "right", top: "bottom" }}
-//           items={[
-//             { label: "Edit", href: "#" },
-//             { label: "Complete", href: "#" },
-//             { label: "Delete", href: "#" }
-//           ]}
-//           size="xlarge"
-//         />
-//       </Box>
-//     </Grid>
-//   </Box>;
-// };
+// constraining the actions to the connected component.
+// accessible via `this.props`.
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  removeTodo: (id: string) => dispatch(removeTodo(id)),
+  openMenu: (editable: boolean, text: string) =>
+    dispatch(openMenu(editable, text)),
+  toggleMenu: (editable: boolean) => dispatch(toggleMenu(editable))
+});
 
-export default Note;
+const mapStateToProps = ({ menu }: ApplicationState) => ({
+  opened: menu.opened,
+  editable: menu.editable,
+  todoIdForEdit: menu.todoIdForEdit
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Note);

@@ -5,7 +5,7 @@ import { FormClose, Notification, Close, Add, More } from "grommet-icons";
 
 import Header from "./components/header";
 import Main from "./components/main";
-import NewNote from "./components/new-note";
+import Menu from "./components/menu";
 
 const theme = {
   global: {
@@ -58,15 +58,13 @@ class App extends React.Component {
     showSidebar: false
   };
 
-  open = () => this.setState({ showSidebar: true });
+  // open = () => this.setState({ showSidebar: true });
 
-  close = () => this.setState({ showSidebar: false });
+  // close = () => this.setState({ showSidebar: false });
 
-  toggle = () => {
-    this.setState({ showSidebar: !this.state.showSidebar }, () => {
-      //console.log("toggle state", this.state);
-    });
-  };
+  // toggle = () => {
+  //   this.setState({ showSidebar: !this.state.showSidebar }, () => {});
+  // };
 
   render() {
     const { showSidebar } = this.state;
@@ -75,10 +73,10 @@ class App extends React.Component {
         <ResponsiveContext.Consumer>
           {size => (
             <Box fill>
-              <Header toggle={this.toggle} />
+              <Header />
               <Box direction="row" flex overflow={{ horizontal: "hidden" }}>
                 <Main size={size} />
-                <NewNote show={showSidebar} size={size} toggle={this.toggle} />
+                <Menu size={size} />
               </Box>
             </Box>
           )}

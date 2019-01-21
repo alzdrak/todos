@@ -1,9 +1,12 @@
 import { combineReducers } from "redux";
 import todoReducer from "./todo/reducer";
 import { TodoState } from "./todo/types";
+import { MenuState } from "./menu/types";
+import menuReducer from "./menu/reducer";
 
 const rootReducer = combineReducers({
-  todo: todoReducer
+  todo: todoReducer,
+  menu: menuReducer
 });
 
 export default rootReducer;
@@ -13,4 +16,5 @@ export default rootReducer;
 // The top-level state object
 export interface ApplicationState {
   todo: TodoState;
+  menu: MenuState;
 }

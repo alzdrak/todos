@@ -9,13 +9,12 @@ export interface Todo {
 //action keys
 export enum TodoActionTypes {
   ADD_TODO = "todo/ADD_TODO",
+  EDIT_TODO = "todo/EDIT_TODO",
   REMOVE_TODO = "todo/REMOVE_TODO"
 }
 
-// Declare state types with `readonly` modifier to get compile time immutability.
-// https://github.com/piotrwitek/react-redux-typescript-guide#state-with-type-level-immutability
+// `readonly` modifier to get compile time immutability.
 export interface TodoState {
-  //readonly todos: ReadonlyArray<Todo>;
   readonly todos: Todo[];
   readonly errors?: string;
   //readonly loading: boolean;
@@ -27,15 +26,17 @@ export interface IAddTodoAction extends Action {
   text: string;
 }
 
+//edit todo action interface
+export interface IEditTodoAction extends Action {
+  type: typeof TodoActionTypes.EDIT_TODO;
+  id: string;
+  text: string;
+}
+
 //remove todo action interface
 export interface IRemoveTodoAction extends Action {
   type: typeof TodoActionTypes.REMOVE_TODO;
-  id: number;
+  id: string;
 }
 
-// export const add: ActionCreator<IAddTodoAction> = (text: string) => ({
-//   type: TodoActionTypes.ADD_TODO,
-//   text: text
-// })
-
-export type TodoAction = IAddTodoAction | IRemoveTodoAction;
+export type TodoAction = IAddTodoAction | IEditTodoAction | IRemoveTodoAction;

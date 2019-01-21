@@ -13,9 +13,9 @@ const initialState: TodoState = {
   //loading: false
 };
 
-const todoReducer: Reducer<TodoState> = (
+const todoReducer: Reducer<TodoState, TodoAction> = (
   state: TodoState = initialState,
-  action: any //TODO: type safe the actions to TodoAction
+  action: TodoAction //TODO: type safe the actions to TodoAction
 ) => {
   switch (action.type) {
     case TodoActionTypes.ADD_TODO:
@@ -24,6 +24,15 @@ const todoReducer: Reducer<TodoState> = (
         errors: undefined
       };
       return newState;
+    case TodoActionTypes.EDIT_TODO:
+      //copy state (dont mutate this state directly)
+      let newTodos = [...state.todos];
+      //find index of item to edit
+      let index = newTodos.findIndex(todo => todo.id == action.id);
+      //update item
+      newTodos[index] = { id: action.id, text: action.text };
+      //return new state
+      return { todos: newTodos, errors: undefined };
     case TodoActionTypes.REMOVE_TODO:
       return {
         todos: state.todos.filter(todo => todo.id !== action.id),

@@ -1,12 +1,6 @@
 import React from "react";
-import { bindActionCreators, Dispatch } from "redux";
+import { Dispatch } from "redux";
 import { connect } from "react-redux";
-
-import { TodoState, Todo } from "../store/todo/types";
-import { ApplicationState } from "../store/reducers";
-
-import { addTodo } from "../store/todo/actions";
-
 import {
   Box,
   Button,
@@ -19,6 +13,11 @@ import {
 // @ts-ignore
 import { Close, Add } from "grommet-icons";
 
+import { ApplicationState } from "../store/reducers";
+import { Todo } from "../store/todo/types";
+import { addTodo, editTodo } from "../store/todo/actions";
+import { toggleMenu } from "../store/menu/actions";
+
 interface IState {
   note: string;
 }
@@ -27,22 +26,25 @@ interface IState {
 interface PropsFromState {
   todos: ReadonlyArray<Todo>;
   errors?: string;
+  opened: boolean;
+  editable: boolean;
+  todoIdForEdit: string;
 }
 
 interface PropsFromDispatch {
   addTodo: typeof addTodo;
+  editTodo: typeof editTodo;
+  toggleMenu: typeof toggleMenu;
 }
 
 interface OwnProps {
-  show: boolean;
   size: string;
-  toggle: React.FormEventHandler;
 }
 
 // Combine both state + dispatch props - as well as any props we want to pass - in a union type.
 type AllProps = PropsFromState & PropsFromDispatch & OwnProps;
 
-class NewNote extends React.Component<AllProps, IState> {
+class Menu extends React.Component<AllProps, IState> {
   constructor(props: AllProps) {
     super(props);
 
@@ -67,16 +69,45 @@ class NewNote extends React.Component<AllProps, IState> {
     this.props.addTodo(this.state.note);
 
     //toggle the add note slider
-    this.props.toggle(e);
+    this.props.toggleMenu(false, "");
+
+    //clear todo input
+    this.setState({ note: "" });
   };
 
-  render() {
-    const { size, show, toggle } = this.props;
+  private editTodo = (e: React.FormEvent) => {
+    //stop propagation to submit form (eg refresh)
+    e.preventDefault();
 
+    //dispatch the action
+    this.props.editTodo(this.state.note);
+
+    //toggle the add note slider
+    this.props.toggleMenu(false, "");
+
+    //clear todo input
+    this.setState({ note: "" });
+  };
+
+  componentDidUpdate(prevProps: AllProps, prevState: IState): void {
+    if (prevProps.todoIdForEdit !== this.props.todoIdForEdit) {
+      let editableTodo = this.props.todos.find(
+        todo => todo.id === this.props.todoIdForEdit
+      );
+      if (editableTodo) {
+        this.setState({ note: editableTodo.text });
+      } else {
+        this.setState({ note: "" });
+      }
+    }
+  }
+
+  render() {
+    const { size, opened } = this.props;
     return (
       <>
-        {!show || size !== "small" ? (
-          <Collapsible direction="horizontal" open={show}>
+        {!opened || size !== "small" ? (
+          <Collapsible direction="horizontal" open={opened}>
             <Box
               flex
               width="medium"
@@ -89,16 +120,17 @@ class NewNote extends React.Component<AllProps, IState> {
                 as="form"
                 fill="vertical"
                 overflow="auto"
-                onSubmit={this.addTodo}
+                onSubmit={!this.props.editable ? this.addTodo : this.editTodo}
                 background="light-2"
                 tag="header"
                 pad="large"
+                style={{ width: "100%" }}
               >
                 <Box flex={false} direction="row" justify="between">
                   <Heading level="2" margin="none">
-                    Add a New Note
+                    {!this.props.editable ? `Add a New Note` : `Edit the Note`}
                   </Heading>
-                  <Button icon={<Close />} onClick={toggle} />
+                  <Button icon={<Close />} onClick={this.props.toggleMenu} />
                 </Box>
 
                 <Box flex="grow" overflow="auto" pad={{ vertical: "medium" }}>
@@ -109,6 +141,7 @@ class NewNote extends React.Component<AllProps, IState> {
                       style={{ fontSize: "20px", fontWeight: "normal" }}
                       placeholder="What's on your mind?"
                       onChange={this.onChange}
+                      value={this.state.note}
                     />
                   </FormField>
                 </Box>
@@ -129,8 +162,8 @@ class NewNote extends React.Component<AllProps, IState> {
           <Layer
             position="right"
             full="vertical"
-            onClickOutside={toggle}
-            onEsc={toggle}
+            onClickOutside={this.props.toggleMenu}
+            onEsc={this.props.toggleMenu}
           >
             <Box
               as="form"
@@ -143,9 +176,9 @@ class NewNote extends React.Component<AllProps, IState> {
             >
               <Box flex={false} direction="row" justify="between">
                 <Heading level="2" margin="none">
-                  Add a New Note
+                  {!this.props.editable ? `Add a New Note` : `Edit the Note`}
                 </Heading>
-                <Button icon={<Close />} onClick={toggle} />
+                <Button icon={<Close />} onClick={this.props.toggleMenu} />
               </Box>
 
               <Box flex="grow" overflow="auto" pad={{ vertical: "medium" }}>
@@ -155,6 +188,7 @@ class NewNote extends React.Component<AllProps, IState> {
                     resize={false}
                     style={{ fontSize: "20px", fontWeight: "normal" }}
                     onChange={this.onChange}
+                    value={this.state.note}
                   />
                 </FormField>
               </Box>
@@ -179,18 +213,20 @@ class NewNote extends React.Component<AllProps, IState> {
 // constraining the actions to the connected component.
 // accessible via `this.props`.
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  addTodo: (text: string) => dispatch(addTodo(text))
+  addTodo: (text: string) => dispatch(addTodo(text)),
+  editTodo: (id: string, text: string) => dispatch(editTodo(id, text)),
+  toggleMenu: (editable: boolean) => dispatch(toggleMenu(editable, ""))
 });
 
-// single context at a time in a connected component.
-// Can always include multiple contexts. Just remember
-// to separate them from each other to prevent prop conflicts.
-const mapStateToProps = ({ todo }: ApplicationState) => ({
+const mapStateToProps = ({ todo, menu }: ApplicationState) => ({
   todos: todo.todos,
-  errors: todo.errors
+  errors: todo.errors,
+  opened: menu.opened,
+  editable: menu.editable,
+  todoIdForEdit: menu.todoIdForEdit
 });
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(NewNote);
+)(Menu);
